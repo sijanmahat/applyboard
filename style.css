@@ -1,0 +1,427 @@
+/* ==========================================================
+   APPLYBOARD STYLES
+   How this file is organised (top to bottom):
+   1. Colour theme (variables)
+   2. Page basics
+   3. Header and stats
+   4. Search / filter bar
+   5. Buttons, inputs, focus
+   6. The board, columns and cards
+   7. Popup form (dialog)
+   8. Toast message
+   9. Helpers
+  10. Responsive rules (phones and tablets)
+  11. Animation
+   ========================================================== */
+
+
+/* ----------------------------------------------------------
+   1. COLOUR THEME
+   Variables are written as --name and used as var(--name).
+   Change a colour here once and it updates everywhere.
+   ---------------------------------------------------------- */
+:root {
+  --bg: #eef1f6;          /* page background */
+  --surface: #ffffff;     /* cards, inputs, popups */
+  --ink: #14213d;         /* main text colour */
+  --muted: #56627f;       /* softer, secondary text */
+  --line: #d3d9e6;        /* borders */
+  --accent: #2f4bff;      /* main brand colour (buttons, focus) */
+  --accent-ink: #ffffff;  /* text on top of the accent colour */
+  --danger: #b3261e;      /* error / delete colour */
+
+  box-sizing: border-box;
+
+  /* Keeps content away from phone notches and home bars */
+  padding-top: env(safe-area-inset-top, 0px);
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+/* Dark theme, case A: the person's device is set to dark mode,
+   unless they chose light manually with the Theme button. */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0e1424;
+    --surface: #171f35;
+    --ink: #e8ecf7;
+    --muted: #9aa6c6;
+    --line: #2a3556;
+    --accent: #8ea0ff;
+    --accent-ink: #0e1424;
+    --danger: #ff8a80;
+  }
+}
+
+/* Dark theme, case B: the person pressed the Theme button.
+   JavaScript sets data-theme="dark" on the <html> element. */
+:root[data-theme="dark"] {
+  --bg: #0e1424;
+  --surface: #171f35;
+  --ink: #e8ecf7;
+  --muted: #9aa6c6;
+  --line: #2a3556;
+  --accent: #8ea0ff;
+  --accent-ink: #0e1424;
+  --danger: #ff8a80;
+}
+
+
+/* ----------------------------------------------------------
+   2. PAGE BASICS
+   ---------------------------------------------------------- */
+
+/* Make width include padding and border, so sizes are predictable */
+*,
+*::before,
+*::after {
+  box-sizing: inherit;
+}
+
+html {
+  scroll-padding-top: env(safe-area-inset-top, 0px);
+}
+
+body {
+  margin: 0;                       /* remove the browser's default gap */
+  background: var(--bg);
+  color: var(--ink);
+  font: 16px/1.5 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  /* shorthand: size / line-height  font-family list */
+}
+
+h1, h2, h3 {
+  font-family: "Bricolage Grotesque", system-ui, sans-serif;
+  margin: 0;
+  line-height: 1.15;
+}
+
+/* Centres the whole app and stops it getting too wide */
+.wrap {
+  max-width: 1240px;
+  margin: 0 auto;                  /* auto left/right = centred */
+  padding: 24px 16px 48px;         /* top, left/right, bottom */
+}
+
+
+/* ----------------------------------------------------------
+   3. HEADER AND STATS
+   ---------------------------------------------------------- */
+header {
+  display: flex;                   /* put title and stats side by side */
+  flex-wrap: wrap;                 /* drop to a new line if there is no room */
+  gap: 16px;
+  align-items: end;
+  justify-content: space-between;  /* title left, stats right */
+  margin-bottom: 20px;
+}
+
+h1 {
+  /* clamp(smallest, ideal, largest): text grows with the screen,
+     but never below 1.9rem or above 2.8rem */
+  font-size: clamp(1.9rem, 4vw, 2.8rem);
+  font-weight: 700;
+}
+
+.sub {
+  margin: 6px 0 0;
+  color: var(--muted);
+  max-width: 46ch;                 /* ch = width of one "0", good for line length */
+}
+
+.stats {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.stat {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 8px 14px;
+  min-width: 92px;
+}
+
+.stat b {                          /* the big number */
+  display: block;
+  font: 700 1.6rem/1.1 "Bricolage Grotesque", system-ui, sans-serif;
+}
+
+.stat span {                       /* the small label under it */
+  font-size: 0.8rem;
+  color: var(--muted);
+}
+
+
+/* ----------------------------------------------------------
+   4. SEARCH / FILTER BAR
+   ---------------------------------------------------------- */
+.bar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.bar input[type=search] {
+  flex: 1 1 220px;                 /* grow to fill space, but start at 220px */
+}
+
+
+/* ----------------------------------------------------------
+   5. BUTTONS, INPUTS AND FOCUS
+   ---------------------------------------------------------- */
+
+/* Form controls do not inherit fonts by default, so we force it */
+input,
+select,
+textarea,
+button {
+  font: inherit;
+  color: inherit;
+}
+
+input,
+select,
+textarea {
+  width: 100%;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 9px 11px;
+}
+
+.bar select {
+  width: auto;                     /* the filter dropdown should not stretch */
+}
+
+button {
+  cursor: pointer;
+  border: 1px solid var(--line);
+  background: var(--surface);
+  border-radius: 8px;
+  padding: 9px 14px;
+}
+
+button:hover {
+  border-color: var(--accent);
+}
+
+/* The main action button (Add application, Save) */
+.primary {
+  background: var(--accent);
+  color: var(--accent-ink);
+  border-color: var(--accent);
+  font-weight: 600;
+}
+
+/* Outline shown when someone navigates with the Tab key.
+   Important for accessibility, so do not remove it. */
+:focus-visible {
+  outline: 3px solid var(--accent);
+  outline-offset: 2px;
+}
+
+
+/* ----------------------------------------------------------
+   6. THE BOARD, COLUMNS AND CARDS
+   ---------------------------------------------------------- */
+
+/* Five equal columns. minmax(0, 1fr) lets columns shrink properly. */
+.board {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 14px;
+  align-items: start;              /* columns keep their own height */
+}
+
+/* One status column (Wishlist, Applied, ...) */
+.col {
+  /* mixes 55% of the surface colour with transparent = a soft tint */
+  background: color-mix(in srgb, var(--surface) 55%, transparent);
+  border: 1px solid var(--line);
+  border-top: 4px solid var(--c);  /* --c is set per column by JavaScript */
+  border-radius: 10px;
+  padding: 12px;
+  min-height: 120px;
+}
+
+.col h2 {
+  font-size: 1.05rem;
+  display: flex;
+  justify-content: space-between;  /* title left, count right */
+  margin-bottom: 10px;
+}
+
+.col h2 span {                     /* the number of cards */
+  color: var(--muted);
+  font-weight: 500;
+}
+
+/* One application card */
+.card {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 12px;
+  margin-bottom: 10px;
+}
+
+.card h3 {                         /* company name */
+  font-size: 1rem;
+  font-weight: 700;
+}
+
+.card p {                          /* role, date, notes */
+  margin: 4px 0 0;
+  font-size: 0.9rem;
+  color: var(--muted);
+  overflow-wrap: anywhere;         /* long words or links wrap instead of overflowing */
+}
+
+.card a {
+  color: var(--accent);
+}
+
+/* The row with the status dropdown, Edit and Delete */
+.card .row {
+  display: flex;
+  gap: 6px;
+  margin-top: 10px;
+  flex-wrap: wrap;
+}
+
+.card select {
+  padding: 5px 8px;
+  font-size: 0.85rem;
+  flex: 1 1 100px;
+}
+
+.card button {
+  padding: 5px 10px;
+  font-size: 0.85rem;
+}
+
+/* "Nothing here yet." message */
+.empty {
+  color: var(--muted);
+  font-size: 0.9rem;
+  margin: 6px 0 0;
+}
+
+
+/* ----------------------------------------------------------
+   7. POPUP FORM (the <dialog> element)
+   ---------------------------------------------------------- */
+dialog {
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: var(--surface);
+  color: var(--ink);
+  width: min(460px, calc(100% - 24px));  /* 460px on desktop, nearly full width on phones */
+  padding: 20px;
+}
+
+/* The dark layer behind the popup */
+dialog::backdrop {
+  background: rgba(10, 15, 30, 0.55);
+}
+
+dialog h2 {
+  margin-bottom: 14px;
+}
+
+label {
+  display: block;
+  font-size: 0.9rem;
+  font-weight: 600;
+  margin: 10px 0 4px;
+}
+
+/* Cancel and Save buttons, pushed to the right */
+.actions {
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+  margin-top: 18px;
+}
+
+
+/* ----------------------------------------------------------
+   8. TOAST (the small message at the bottom)
+   Hidden by default. JavaScript adds the class "show" to display it.
+   ---------------------------------------------------------- */
+#toast {
+  position: fixed;                 /* stays in place while scrolling */
+  left: 50%;
+  transform: translateX(-50%);     /* together with left: 50% = centred */
+  bottom: calc(16px + env(safe-area-inset-bottom, 0px));
+  background: var(--ink);
+  color: var(--bg);
+  padding: 10px 14px;
+  border-radius: 8px;
+  display: none;
+  gap: 12px;
+  align-items: center;
+  z-index: 5;                      /* sits above other content */
+}
+
+#toast.show {
+  display: flex;
+}
+
+#toast button {                    /* the Undo button */
+  background: transparent;
+  color: inherit;
+  border-color: currentColor;
+  padding: 3px 10px;
+}
+
+
+/* ----------------------------------------------------------
+   9. HELPERS
+   ---------------------------------------------------------- */
+
+/* "Screen reader only": hidden visually but still read aloud.
+   Used for labels on the search box and filter. */
+.sr {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+}
+
+
+/* ----------------------------------------------------------
+  10. RESPONSIVE RULES
+   These apply only when the screen is this narrow or smaller.
+   ---------------------------------------------------------- */
+
+/* Tablets: 2 columns */
+@media (max-width: 1000px) {
+  .board {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+/* Phones: 1 column */
+@media (max-width: 620px) {
+  .board {
+    grid-template-columns: 1fr;
+  }
+}
+
+
+/* ----------------------------------------------------------
+  11. ANIMATION
+   Only runs if the person has NOT asked their device to reduce motion.
+   ---------------------------------------------------------- */
+@media (prefers-reduced-motion: no-preference) {
+  .card {
+    transition: border-color 0.15s;   /* smooth colour change */
+  }
+  .card:hover {
+    border-color: var(--accent);
+  }
+}
